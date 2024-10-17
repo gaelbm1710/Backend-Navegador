@@ -1,7 +1,7 @@
 # Backend de Navegador
 Este repositorio es para el backend del navegador para el proyecto.
 # Conexión a Base de datos
-En el archivo de .env cambiar los datos por sus valores de su equipo local
+En el archivo de **__.env__** cambiar los datos por sus valores de su equipo local
 # # Pasos para replicar el proyecto
 Ejecutamos el comando 
 ```
