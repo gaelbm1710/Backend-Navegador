@@ -10,9 +10,10 @@ const pool = mysql.createPool({
   password: DB_PASSWORD,
   database: DB_DATABASE,
 });
-function query(sql) {
+
+function query(sql, params) {
   return new Promise((resolve, reject) => {
-    pool.query(sql, (error, results) => {
+    pool.query(sql, params, (error, results) => {
       if (error) {
         return reject(error);
       }
@@ -20,6 +21,7 @@ function query(sql) {
     });
   });
 }
+
 /*
 Esta configuracion es para crear consultas 
 que no consuman mucho recurso.
@@ -37,9 +39,6 @@ async function Ejemplo(req, res) {
     res.status(400).send({ msg: "Error al obtener la información", error });
   }
 }
-//Crear endpoints
-//Aquí van los demás endpoints
-//Usuarios:
 
 //Crear usuario:
 async function createUser(req, res) {
@@ -68,31 +67,31 @@ async function getUsers(req, res) {
 
 //Crear Consulta con Reglas de Negocio
 async function createSearchQuery(req, res) {
-  const { user_id, query } = req.body;
+  const { user_id, query: searchQuery } = req.body; // Renombrar la variable para evitar confusiones
 
   // Lista de palabras prohibidas
   const forbiddenWords = ["terrorismo", "violencia", "armas"];
 
   // Verificar si la consulta contiene palabras prohibidas
   const containsForbiddenWord = forbiddenWords.some(word =>
-    query.toLowerCase().includes(word)
+    searchQuery.toLowerCase().includes(word)
   );
 
   if (containsForbiddenWord) {
-    return res.status(400).json({
-      msg: "Consulta no permitida debido a contenido sensible."
+    return res.status(422).json({
+      msg: "Consulta no permitida debido a contenido sensible.",
     });
   }
 
   try {
     const sql = "INSERT INTO search_queries (user_id, query) VALUES (?, ?)";
-    const result = await query(sql, [user_id, query]);
+    const result = await query(sql, [user_id, searchQuery]); 
     res.json({
       message: "Consulta de búsqueda creada",
       search_id: result.insertId,
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error específico:", error); 
     res.status(400).send({
       msg: "Error al crear la consulta de búsqueda",
       error,
@@ -108,9 +107,7 @@ async function getSearchQueries(req, res) {
     res.json(queries);
   } catch (error) {
     console.log(error);
-    res
-      .status(400)
-      .send({ msg: "Error al obtener las consultas de búsqueda", error });
+    res.status(400).send({ msg: "Error al obtener las consultas de búsqueda", error });
   }
 }
 
@@ -135,15 +132,15 @@ async function createSearchResult(req, res) {
 
 //Obtener los resultados filtrando por palabras prohibidas
 async function getSearchResults(req, res) {
-  const { query } = req.body;
+  const { query: searchQuery } = req.body; // Renombrar para evitar confusiones
   const forbiddenWords = ["terrorismo", "violencia", "armas"];
 
   const containsForbiddenWord = forbiddenWords.some(word =>
-    query.toLowerCase().includes(word)
+    searchQuery.toLowerCase().includes(word)
   );
 
   if (containsForbiddenWord) {
-    return res.status(400).json({
+    return res.status(422).json({
       msg: "Consulta no permitida debido a contenido sensible."
     });
   }
