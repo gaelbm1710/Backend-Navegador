@@ -35,5 +35,5 @@ connectionDB.connect(function (err) {
 
 app.get(`/`, (req, res) => {
   console.log(`http://${serverip}`);
-  res.send("Para ver si jala de raiz");
+  res.send(`http://${serverip} Para ver si jala de raiz`);
 });
