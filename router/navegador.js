@@ -3,18 +3,29 @@ const NavegadorController = require("../controllers/navegador");
 
 const api = express.Router();
 
-//Rutas
 //Ejemplo de Ruta
 api.get("/ejemplo", NavegadorController.Ejemplo);
 
+//Rutas con MYSQL
 //Ususarios:
-api.post("/usuario", NavegadorController.createUser);
-api.get("/usuario", NavegadorController.getUsers);
+api.post("/mysqlusuario", NavegadorController.createUser);
+api.get("/mysqlusuario", NavegadorController.getUsers);
 //Consultas:
-api.post("/consultas", NavegadorController.createSearchQuery);
-api.get("/consultas", NavegadorController.getSearchQueries);
+api.post("/mysqlconsultas", NavegadorController.createSearchQuery);
+api.get("/mysqlconsultas", NavegadorController.getSearchQueries);
 //Resultados:
-api.post("/resultados", NavegadorController.createSearchResult);
-api.get("/resultados", NavegadorController.getSearchResults);
+api.post("/mysqlresultados", NavegadorController.createSearchResult);
+api.get("/mysqlresultados", NavegadorController.getSearchResults);
+
+//Rutas con PostgreSQL
+//Ususarios:
+api.post("/postusuario", NavegadorController.createUserPost);
+api.get("/postusuario", NavegadorController.getUsersPost);
+//Consultas:
+api.post("/postconsultas", NavegadorController.createSearchQueryPost);
+api.get("/postconsultas", NavegadorController.getSearchQueriesPost);
+//Resultados:
+api.post("/postresultados", NavegadorController.createSearchResultPost);
+api.get("/postresultados", NavegadorController.getSearchResultsPost);
 
 module.exports = api;
