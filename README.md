@@ -2,6 +2,8 @@
 Este repositorio es para el backend del navegador para el proyecto.
 # Conexión a Base de datos
 En el archivo de **__.env__** cambiar los datos por sus valores de su equipo local
+# Archivo para Base de Datos
+En el repositorio hay un archivo **.sql** para crear la replica de la base de datos
 # # Pasos para replicar el proyecto
 Ejecutamos el comando 
 ```
