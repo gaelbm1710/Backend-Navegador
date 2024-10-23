@@ -21,9 +21,9 @@ const pool = mysql.createPool({
   database: DB_DATABASE,
 });
 
-function query(sql) {
+function query(sql, params = []) {
   return new Promise((resolve, reject) => {
-    pool.query(sql, (error, results) => {
+    pool.query(sql, params, (error, results) => {
       if (error) {
         return reject(error);
       }
@@ -67,10 +67,21 @@ async function getUsers(req, res) {
 
 // Endpoints para consultas de búsqueda en MySQL
 async function createSearchQuery(req, res) {
-  const { user_id, query } = req.body;
+  const { user_id, query: searchQuery } = req.body; // Renombrar aquí
+
+  // Verificar si la consulta contiene palabras prohibidas
+  const forbiddenWords = ["TERRORISMO"];
+  const containsForbiddenWord = forbiddenWords.some(word =>
+    searchQuery.toUpperCase().includes(word) // Cambiar a "searchQuery"
+  );
+
+  if (containsForbiddenWord) {
+    return res.status(400).send({ msg: "La consulta contiene palabras prohibidas." });
+  }
+
   try {
     const sql = "INSERT INTO search_queries (user_id, query) VALUES (?, ?)";
-    const result = await query(sql, [user_id, query]);
+    const result = await query(sql, [user_id, searchQuery]); // Cambiar a "searchQuery"
     res.json({
       message: "Consulta de búsqueda creada: ",
       search_id: result.insertId,
@@ -79,9 +90,10 @@ async function createSearchQuery(req, res) {
     console.log(error);
     res
       .status(400)
-      .send({ msg: "Error al crear la consulta de búsqueda", error });
+      .send({ msg: "Error al crear la consulta de búsqueda", error: error.message });
   }
 }
+
 
 async function getSearchQueries(req, res) {
   try {
@@ -163,6 +175,17 @@ async function getUsersPost(req, res) {
 // Endpoints para consultas de búsqueda en PostgreSQL
 async function createSearchQueryPost(req, res) {
   const { user_id, query } = req.body;
+
+  // Verificar si la consulta contiene palabras prohibidas
+  const forbiddenWords = ["TERRORISMO"];
+  const containsForbiddenWord = forbiddenWords.some(word =>
+    query.toUpperCase().includes(word)
+  );
+
+  if (containsForbiddenWord) {
+    return res.status(400).send({ msg: "La consulta contiene palabras prohibidas." });
+  }
+
   try {
     const postgres =
       "INSERT INTO search_queries (user_id, query) VALUES ($1, $2)";
@@ -177,6 +200,7 @@ async function createSearchQueryPost(req, res) {
       .send({ msg: "Error al crear la consulta de búsqueda", error });
   }
 }
+
 
 async function getSearchQueriesPost(req, res) {
   try {
