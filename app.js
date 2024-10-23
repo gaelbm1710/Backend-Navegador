@@ -3,6 +3,8 @@ const { api_Version } = require("./constants");
 const app = express();
 const cors = require("cors");
 
+app.use(express.json());
+
 //Rutas
 const navegadorRoutes = require("./router/navegador");
 
