@@ -174,7 +174,11 @@ async function getUsersPost(req, res) {
 
 // Endpoints para consultas de búsqueda en PostgreSQL
 async function createSearchQueryPost(req, res) {
-  const { user_id, query } = req.body;
+  const { user_id, query } = req.body || {}; // Evita errores si req.body es undefined
+
+  if (!user_id || !query) {
+    return res.status(400).send({ msg: "user_id y query son campos requeridos" });
+  }
 
   // Verificar si la consulta contiene palabras prohibidas
   const forbiddenWords = ["TERRORISMO"];
@@ -187,17 +191,14 @@ async function createSearchQueryPost(req, res) {
   }
 
   try {
-    const postgres =
-      "INSERT INTO search_queries (user_id, query) VALUES ($1, $2)";
+    const postgres = "INSERT INTO search_queries (user_id, query) VALUES ($1, $2)";
     const result = await queryPostgresql(postgres, [user_id, query]);
     res.json({
-      message: "Consulta de búsqueda creada: ",
+      message: "Consulta de búsqueda creada",
       search_id: result.insertId,
     });
   } catch (error) {
-    res
-      .status(400)
-      .send({ msg: "Error al crear la consulta de búsqueda", error });
+    res.status(400).send({ msg: "Error al crear la consulta de búsqueda", error });
   }
 }
 
