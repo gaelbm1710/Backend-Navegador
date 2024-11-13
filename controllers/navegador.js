@@ -71,12 +71,14 @@ async function createSearchQuery(req, res) {
 
   // Verificar si la consulta contiene palabras prohibidas
   const forbiddenWords = ["TERRORISMO"];
-  const containsForbiddenWord = forbiddenWords.some(word =>
-    searchQuery.toUpperCase().includes(word) // Cambiar a "searchQuery"
+  const containsForbiddenWord = forbiddenWords.some(
+    (word) => searchQuery.toUpperCase().includes(word) // Cambiar a "searchQuery"
   );
 
   if (containsForbiddenWord) {
-    return res.status(400).send({ msg: "La consulta contiene palabras prohibidas." });
+    return res
+      .status(400)
+      .send({ msg: "La consulta contiene palabras prohibidas." });
   }
 
   try {
@@ -88,12 +90,12 @@ async function createSearchQuery(req, res) {
     });
   } catch (error) {
     console.log(error);
-    res
-      .status(400)
-      .send({ msg: "Error al crear la consulta de búsqueda", error: error.message });
+    res.status(400).send({
+      msg: "Error al crear la consulta de búsqueda",
+      error: error.message,
+    });
   }
 }
-
 
 async function getSearchQueries(req, res) {
   try {
@@ -177,31 +179,54 @@ async function createSearchQueryPost(req, res) {
   const { user_id, query } = req.body || {}; // Evita errores si req.body es undefined
 
   if (!user_id || !query) {
-    return res.status(400).send({ msg: "user_id y query son campos requeridos" });
+    return res
+      .status(400)
+      .send({ msg: "user_id y query son campos requeridos" });
   }
 
   // Verificar si la consulta contiene palabras prohibidas
-  const forbiddenWords = ["TERRORISMO"];
-  const containsForbiddenWord = forbiddenWords.some(word =>
-    query.toUpperCase().includes(word)
-  );
+  const forbiddenWords = [
+    "TERRORISMO",
+    "VIOLENCIA",
+    "EXTREMISMO",
+    "ARMAS",
+    "ODIO",
+    "ATENTADO",
+    "ASESINATO",
+    "BOMBA",
+    "NARCOTRAFICO",
+    "PORNO",
+    "TERROR\\s*ISMO",
+    "EXTR\\s*EMISMO",
+    "ASESINATO",
+    "AR\\s*MAS",
+    "OD\\s*IO",
+  ];
 
-  if (containsForbiddenWord) {
-    return res.status(400).send({ msg: "La consulta contiene palabras prohibidas." });
+  function containsForbiddenWord(query) {
+    return forbiddenWords.some((word) => new RegExp(word, "i").test(query));
+  }
+
+  if (containsForbiddenWord(searchQuery)) {
+    return res
+      .status(400)
+      .send({ msg: "La consulta contiene palabras prohibidas." });
   }
 
   try {
-    const postgres = "INSERT INTO search_queries (user_id, query) VALUES ($1, $2)";
+    const postgres =
+      "INSERT INTO search_queries (user_id, query) VALUES ($1, $2)";
     const result = await queryPostgresql(postgres, [user_id, query]);
     res.json({
       message: "Consulta de búsqueda creada",
       search_id: result.insertId,
     });
   } catch (error) {
-    res.status(400).send({ msg: "Error al crear la consulta de búsqueda", error });
+    res
+      .status(400)
+      .send({ msg: "Error al crear la consulta de búsqueda", error });
   }
 }
-
 
 async function getSearchQueriesPost(req, res) {
   try {
@@ -246,19 +271,75 @@ async function getSearchResultsPost(req, res) {
   }
 }
 
+// Lista de palabras prohibidas
+const forbiddenWords = [
+  "TERRORISMO",
+  "VIOLENCIA",
+  "EXTREMISMO",
+  "ARMAS",
+  "ODIO",
+  "ATENTADO",
+  "ASESINATO",
+  "BOMBA",
+  "NARCOTRAFICO",
+  "PORNO",
+  "TERROR\\s*ISMO",
+  "EXTR\\s*EMISMO",
+  "ASE\\s*SINATO",
+  "AR\\s*MAS",
+  "OD\\s*IO",
+];
+
+// Función para verificar si una descripción contiene palabras prohibidas
+function containsForbiddenWord(text) {
+  return forbiddenWords.some((word) => new RegExp(word, "i").test(text));
+}
+
+async function querysearchPost(req, res) {
+  try {
+    const { description } = req.query;
+    const normalizedDescription = description ? description.trim() : null;
+
+    // Verificar si contiene palabras prohibidas
+    if (normalizedDescription && containsForbiddenWord(normalizedDescription)) {
+      return res
+        .status(400)
+        .send({ msg: "La consulta contiene palabras prohibidas." });
+    }
+
+    let baseQuery = "SELECT * FROM search_results";
+    const params = [];
+
+    if (normalizedDescription) {
+      console.log(`Descripción recibida: ${normalizedDescription}`);
+      baseQuery += ` WHERE description LIKE $1`;
+      params.push(`%${normalizedDescription}%`);
+    }
+
+    const results = await queryPostgresql(baseQuery, params);
+    res.status(200).json({
+      data: results,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ msg: "Error en el servidor", error });
+  }
+}
+
 // Exportar los endpoints
 module.exports = {
   Ejemplo,
-  createUser,
+  //createUser,
   getUsers,
-  createSearchQuery,
+  //createSearchQuery,
   getSearchQueries,
-  createSearchResult,
+  //createSearchResult,
   getSearchResults,
-  createUserPost,
+  //createUserPost,
   getUsersPost,
-  createSearchQueryPost,
+  //createSearchQueryPost,
   getSearchQueriesPost,
-  createSearchResultPost,
+  //createSearchResultPost,
   getSearchResultsPost,
+  querysearchPost,
 };

@@ -8,24 +8,25 @@ api.get("/ejemplo", NavegadorController.Ejemplo);
 
 //Rutas con MYSQL
 //Ususarios:
-api.post("/mysqlusuario", NavegadorController.createUser);
+// api.post("/mysqlusuario", NavegadorController.createUser);
 api.get("/mysqlusuario", NavegadorController.getUsers);
 //Consultas:
-api.post("/mysqlconsultas", NavegadorController.createSearchQuery);
+// api.post("/mysqlconsultas", NavegadorController.createSearchQuery);
 api.get("/mysqlconsultas", NavegadorController.getSearchQueries);
 //Resultados:
-api.post("/mysqlresultados", NavegadorController.createSearchResult);
+// api.post("/mysqlresultados", NavegadorController.createSearchResult);
 api.get("/mysqlresultados", NavegadorController.getSearchResults);
 
 //Rutas con PostgreSQL
 //Ususarios:
-api.post("/postusuario", NavegadorController.createUserPost);
+// api.post("/postusuario", NavegadorController.createUserPost);
 api.get("/postusuario", NavegadorController.getUsersPost);
 //Consultas:
-api.post("/postconsultas", NavegadorController.createSearchQueryPost);
+// api.post("/postconsultas", NavegadorController.createSearchQueryPost);
 api.get("/postconsultas", NavegadorController.getSearchQueriesPost);
 //Resultados:
-api.post("/postresultados", NavegadorController.createSearchResultPost);
+// api.post("/postresultados", NavegadorController.createSearchResultPost);
 api.get("/postresultados", NavegadorController.getSearchResultsPost);
+api.get("/searchquery", NavegadorController.querysearchPost);
 
 module.exports = api;
